@@ -1,0 +1,422 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="YMusicMini.SettingsWindow" Icon="Assets/Icons/midnight-player.ico" Title="Настройки — YMusic Mini" Width="585" Height="760" MinWidth="390" MaxWidth="585" WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow" ShowInTaskbar="True" Topmost="False" SizeToContent="Manual" ResizeMode="NoResize" Loaded="SettingsWindow_Loaded" FontFamily="Segoe UI" FontSize="13" Background="{DynamicResource SettingsWindowBackground}" Foreground="{DynamicResource SettingsText}">
+    <Window.Resources>
+        <SolidColorBrush x:Key="SettingsWindowBackground" Color="#F1F3F9"/>
+        <SolidColorBrush x:Key="SettingsCardBackground" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="SettingsPreviewPanel" Color="#E8ECF7"/>
+        <SolidColorBrush x:Key="SettingsText" Color="#1C2635"/>
+        <SolidColorBrush x:Key="SettingsSubtext" Color="#596579"/>
+        <SolidColorBrush x:Key="SettingsBorder" Color="#D6DEEB"/>
+        <SolidColorBrush x:Key="SettingsControlBackground" Color="#F9FBFE"/>
+        <SolidColorBrush x:Key="SettingsButtonBackground" Color="#EBEFF7"/>
+        <SolidColorBrush x:Key="SettingsAccent" Color="#6250B1"/>
+        <SolidColorBrush x:Key="SettingsHoverBackground" Color="#E9E5FB"/>
+        <SolidColorBrush x:Key="SettingsSelectedBackground" Color="#DDD7F6"/>
+        <SolidColorBrush x:Key="SettingsRailBackground" Color="#D6DAE6"/>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SettingsText}"/>
+        </Style>
+        <!-- All controls use the local theme, including the popup, selected text and items. -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource SettingsText}"/>
+            <Setter Property="Padding" Value="11,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBackground" Background="Transparent" CornerRadius="6" Margin="3,1">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBackground" Property="Background" Value="{DynamicResource SettingsHoverBackground}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBackground" Property="Background" Value="{DynamicResource SettingsSelectedBackground}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource SettingsText}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource SettingsControlBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SettingsText}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SettingsBorder}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <EventSetter Event="PreviewMouseWheel" Handler="Combo_PreviewMouseWheel"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="ComboSurface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8"/>
+                            <ToggleButton Focusable="False" ClickMode="Press" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Grid Background="Transparent">
+                                            <Path Width="12" Height="7" HorizontalAlignment="Right" Margin="0,0,13,0" VerticalAlignment="Center" Stroke="{DynamicResource SettingsSubtext}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M 1,1 L 6,6 L 11,1"/>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter IsHitTestVisible="False" Margin="12,0,35,0" VerticalAlignment="Center" RecognizesAccessKey="True" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" TextElement.Foreground="{DynamicResource SettingsText}"/>
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False" Placement="Bottom" PopupAnimation="Fade" IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
+                                <Border Background="{DynamicResource SettingsControlBackground}" BorderBrush="{DynamicResource SettingsBorder}" BorderThickness="1" CornerRadius="9" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="260" Padding="3">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#000000" Opacity="0.24" BlurRadius="14" ShadowDepth="4"/>
+                                    </Border.Effect>
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ComboSurface" Property="BorderBrush" Value="{DynamicResource SettingsAccent}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="ComboSurface" Property="BorderBrush" Value="{DynamicResource SettingsAccent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource SettingsText}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="CheckSurface" Width="18" Height="18" CornerRadius="5" BorderThickness="1.5" BorderBrush="{DynamicResource SettingsBorder}" Background="{DynamicResource SettingsControlBackground}" VerticalAlignment="Center">
+                                <Path x:Name="Tick" Visibility="Collapsed" Data="M3,9 L7,13 L15,5" Stroke="White" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                            </Border>
+                            <ContentPresenter Margin="9,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True" TextElement.Foreground="{DynamicResource SettingsText}"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckSurface" Property="Background" Value="{DynamicResource SettingsAccent}"/>
+                                <Setter TargetName="CheckSurface" Property="BorderBrush" Value="{DynamicResource SettingsAccent}"/>
+                                <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.50"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="Slider">
+            <Setter Property="Foreground" Value="{DynamicResource SettingsAccent}"/>
+            <Setter Property="IsMoveToPointEnabled" Value="True"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid Background="Transparent">
+                            <Track x:Name="PART_Track" VerticalAlignment="Center" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Focusable="False">
+                                        <RepeatButton.Template><ControlTemplate TargetType="RepeatButton">
+                                            <Border Background="{DynamicResource SettingsAccent}" Height="5" CornerRadius="3"/>
+                                        </ControlTemplate></RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Width="15" Height="15" Cursor="Hand">
+                                        <Thumb.Template><ControlTemplate TargetType="Thumb">
+                                            <Ellipse Fill="{DynamicResource SettingsAccent}" Stroke="{DynamicResource SettingsCardBackground}" StrokeThickness="2"/>
+                                        </ControlTemplate></Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Focusable="False">
+                                        <RepeatButton.Template><ControlTemplate TargetType="RepeatButton">
+                                            <Border Background="{DynamicResource SettingsRailBackground}" Height="5" CornerRadius="3"/>
+                                        </ControlTemplate></RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SettingsButtonBase" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource SettingsButtonBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SettingsText}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SettingsBorder}"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonSurface" CornerRadius="9" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonSurface" Property="Opacity" Value="0.83"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonSurface" Property="Opacity" Value="0.70"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="Button" BasedOn="{StaticResource SettingsButtonBase}"/>
+        <Style x:Key="SaveButtonStyle" TargetType="Button" BasedOn="{StaticResource SettingsButtonBase}">
+            <Setter Property="Background" Value="{DynamicResource SettingsAccent}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SettingsAccent}"/>
+            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style x:Key="SettingsCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource SettingsCardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SettingsBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,2,14"/>
+        </Style>
+        <Style x:Key="SettingsSectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,13"/>
+        </Style>
+        <Style x:Key="SettingsFieldLabel" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style x:Key="Midnight.SettingsScrollBar" TargetType="ScrollBar">
+            <Setter Property="Width" Value="11"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent" Margin="2,1">
+                            <Border Background="{DynamicResource SettingsRailBackground}" CornerRadius="4" Opacity="0.55"/>
+                            <Track x:Name="PART_Track" Orientation="Vertical" IsDirectionReversed="True"
+                                   Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"
+                                   ViewportSize="{TemplateBinding ViewportSize}"
+                                   Value="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Opacity="0" Focusable="False"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb MinHeight="25" Cursor="Hand">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border x:Name="ThumbFace" Background="{DynamicResource SettingsSubtext}" CornerRadius="4" Opacity="0.62"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ThumbFace" Property="Background" Value="{DynamicResource SettingsAccent}"/>
+                                                        <Setter TargetName="ThumbFace" Property="Opacity" Value="1"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Opacity="0" Focusable="False"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ScrollBar" BasedOn="{StaticResource Midnight.SettingsScrollBar}"/>
+    </Window.Resources>
+    <DockPanel Margin="16,10,16,14" LastChildFill="True">
+        <Grid DockPanel.Dock="Bottom" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="Сбросить настройки" Height="36" Click="ResetDefaults_Click"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Отмена" Width="92" Height="36" Margin="0,0,8,0" Click="Cancel_Click"/>
+                <Button Content="Сохранить" Width="112" Height="36" Click="Save_Click" Style="{StaticResource SaveButtonStyle}"/>
+            </StackPanel>
+        </Grid>
+        <Border Background="{DynamicResource SettingsPreviewPanel}" CornerRadius="14" Padding="11" Margin="0,0,2,10" DockPanel.Dock="Top">
+            <StackPanel>
+                <!-- All preview controls share a single compact header row. -->
+                <Grid Margin="2,0,2,9">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Предпросмотр" FontSize="14"
+                               FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <CheckBox Grid.Column="1" x:Name="PreviewLightCheck" Content="Светлый фон"
+                              Margin="12,0,15,0" VerticalAlignment="Center"/>
+                    <CheckBox Grid.Column="2" x:Name="PreviewExpandedCheck" Content="Полный вид"
+                              VerticalAlignment="Center"/>
+                </Grid>
+                <Border x:Name="PreviewFrame" Background="#252A34" Padding="9" CornerRadius="10" Height="90">
+                    <Viewbox x:Name="PreviewViewport" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Border x:Name="PreviewCapsule" Width="280" Height="56" Background="#1D212B"
+                                BorderBrush="#4D5364" BorderThickness="1.7" CornerRadius="28" Opacity="0.92">
+                            <Grid>
+                                <StackPanel x:Name="PreviewMiniRow" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Border x:Name="PreviewCompactCover" Width="40" Height="40" CornerRadius="9" Margin="0,0,17,0" ClipToBounds="True">
+                                        <Grid>
+                                            <Border Background="#65547D"/>
+                                            <Image x:Name="PreviewSmallCoverImage" Stretch="UniformToFill"/>
+                                        </Grid>
+                                    </Border>
+                                    <StackPanel x:Name="PreviewButtonsRow" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border x:Name="PreviewPrevButton" Width="36" Height="36" CornerRadius="16" Margin="0,0,7,0">
+                                            <Grid><Viewbox x:Name="PreviewPrevVector" Width="20" Height="20"><Canvas Width="24" Height="24"><Path x:Name="PreviewPrevIcon" Data="{StaticResource Midnight.Icon.Previous}"/></Canvas></Viewbox><Image x:Name="PreviewPrevArtwork" Visibility="Collapsed" Stretch="Uniform"/></Grid>
+                                        </Border>
+                                        <Border x:Name="PreviewPlayButton" Width="36" Height="36" CornerRadius="18" Margin="0,0,8,0">
+                                            <Grid><Viewbox x:Name="PreviewPlayVector" Width="20" Height="20"><Canvas Width="24" Height="24"><Path x:Name="PreviewPlayIcon" Data="{StaticResource Midnight.Icon.Pause}"/></Canvas></Viewbox><Image x:Name="PreviewPlayArtwork" Visibility="Collapsed" Stretch="Uniform"/></Grid>
+                                        </Border>
+                                        <Border x:Name="PreviewNextButton" Width="36" Height="36" CornerRadius="16" Margin="0,0,7,0">
+                                            <Grid><Viewbox x:Name="PreviewNextVector" Width="20" Height="20"><Canvas Width="24" Height="24"><Path x:Name="PreviewNextIcon" Data="{StaticResource Midnight.Icon.Next}"/></Canvas></Viewbox><Image x:Name="PreviewNextArtwork" Visibility="Collapsed" Stretch="Uniform"/></Grid>
+                                        </Border>
+                                    </StackPanel>
+                                    <Path Width="14" Height="10" StrokeThickness="1.7" Stroke="{Binding Foreground, ElementName=PreviewTitle}" Data="M 1,9 L 7,2 L 13,9"/>
+                                </StackPanel>
+                                <Canvas x:Name="PreviewExpandedDetails" Width="480" Height="220" Visibility="Collapsed">
+                                    <Border Canvas.Left="22" Canvas.Top="26" Width="136" Height="136" Background="#635081" CornerRadius="12" ClipToBounds="True">
+                                        <Grid>
+                                            <TextBlock x:Name="PreviewCoverPlaceholder" Text="♫" Foreground="White" FontSize="55" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <Image x:Name="PreviewCoverImage" Stretch="UniformToFill"/>
+                                        </Grid>
+                                    </Border>
+                                    <TextBlock x:Name="PreviewTitle" Canvas.Left="180" Canvas.Top="42" Text="Название трека" FontSize="17" FontWeight="SemiBold" Width="260" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock x:Name="PreviewArtist" Canvas.Left="180" Canvas.Top="68" Text="Исполнитель" FontSize="13" Width="260" TextTrimming="CharacterEllipsis"/>
+                                    <Border Canvas.Left="180" Canvas.Top="94" Width="278" Height="4" CornerRadius="2" Background="#657080">
+                                        <Border x:Name="PreviewProgressFill" Width="104" HorizontalAlignment="Left" Background="#9E93D4" CornerRadius="2"/>
+                                    </Border>
+                                    <TextBlock Canvas.Left="180" Canvas.Top="104" Text="1:24" FontSize="11" Foreground="#A7B1C6"/>
+                                    <TextBlock Canvas.Left="420" Canvas.Top="104" Text="3:42" FontSize="11" Foreground="#A7B1C6"/>
+                                    <Path x:Name="PreviewRepeatIcon" Canvas.Left="430" Canvas.Top="141" Width="22" Height="22" Stroke="#CAD7ED" StrokeThickness="1.6" Fill="Transparent" Data="M2,8 C3,3 18,3 20,8 M18,4 L20,8 L16,8 M20,16 C18,21 3,21 2,16 M6,16 L2,16 L4,20"/>
+                                    <Path Canvas.Left="180" Canvas.Top="186" Width="21" Height="21" Stroke="#CAD7ED" StrokeThickness="1.4" Fill="Transparent" Data="M2,9 L6,9 12,4 12,20 6,15 2,15 Z M15,7 C19,9 19,15 15,17"/>
+                                    <Border Canvas.Left="212" Canvas.Top="194" Width="236" Height="4" CornerRadius="2" Background="#485064">
+                                        <Border Width="145" HorizontalAlignment="Left" CornerRadius="2" Background="#9E93D4"/>
+                                    </Border>
+                                    <StackPanel x:Name="PreviewExpandedButtonsRow" Canvas.Left="235" Canvas.Top="126" Orientation="Horizontal"/>
+                                </Canvas>
+                            </Grid>
+                        </Border>
+                    </Viewbox>
+                </Border>
+            </StackPanel>
+        </Border>
+
+
+                <ScrollViewer x:Name="SettingsScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+            <StackPanel Margin="0,0,6,0">
+        <Border Style="{StaticResource SettingsCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Внешний вид" Style="{StaticResource SettingsSectionTitle}"/>
+                        <TextBlock Text="Тема окна настроек" Style="{StaticResource SettingsFieldLabel}"/>
+                        <ComboBox x:Name="SettingsThemeCombo" Height="34" Margin="0,6,0,12"/>
+                        <TextBlock Text="Фон капсулы" Style="{StaticResource SettingsFieldLabel}"/>
+                        <ComboBox x:Name="ThemeCombo" Height="34" Margin="0,6,0,12"/>
+                        <StackPanel x:Name="SurroundingOptions" Visibility="Collapsed" Margin="0,0,0,10">
+                            <DockPanel LastChildFill="False">
+                                <TextBlock Text="Интенсивность адаптации" Style="{StaticResource SettingsFieldLabel}"/>
+                                <TextBlock x:Name="SurroundingValueLabel" DockPanel.Dock="Right" Text="65%"/>
+                            </DockPanel>
+                            <Slider x:Name="SurroundingIntensitySlider" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Margin="0,7,0,2"/>
+                        </StackPanel>
+                        <StackPanel x:Name="ButtonColorOptions">
+                            <TextBlock Text="Цвет кнопок" Style="{StaticResource SettingsFieldLabel}"/>
+                            <ComboBox x:Name="AccentCombo" Height="34" Margin="0,6,0,12"/>
+                        </StackPanel>
+                        <TextBlock Text="Стиль кнопок" Style="{StaticResource SettingsFieldLabel}"/>
+                        <ComboBox x:Name="ButtonVisualCombo" Height="48" Margin="0,6,0,12">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding Thumbnail}" Width="72" Height="31" Stretch="Uniform" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <StackPanel x:Name="ButtonShapeOptions">
+                            <TextBlock Text="Форма кнопок" Style="{StaticResource SettingsFieldLabel}"/>
+                            <ComboBox x:Name="ButtonShapeCombo" Height="34" Margin="0,6,0,12"/>
+                        </StackPanel>
+                        <TextBlock Text="Порядок кнопок" Style="{StaticResource SettingsFieldLabel}"/>
+                        <ComboBox x:Name="ButtonOrderCombo" Height="34" Margin="0,6,0,13"/>
+                        <DockPanel LastChildFill="False">
+                            <TextBlock Text="Прозрачность" Style="{StaticResource SettingsFieldLabel}"/>
+                            <TextBlock x:Name="TransparencyValueLabel" DockPanel.Dock="Right" Text="8%"/>
+                        </DockPanel>
+                        <Slider x:Name="TransparencySlider" Minimum="0" Maximum="60" TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,7,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource SettingsCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Поведение окна" Style="{StaticResource SettingsSectionTitle}"/>
+                        <CheckBox x:Name="LockCheck" Content="Закрепить положение" Margin="0,0,0,11"/>
+                        <CheckBox x:Name="TopmostCheck" Content="Поверх остальных окон" Margin="0,0,0,11"/>
+                        <CheckBox x:Name="CollapseCheck" Content="Сворачивать при уходе мыши" Margin="0,0,0,11"/>
+                        <CheckBox x:Name="AnimateWindowCheck" Content="Анимировать раскрытие и обложку" Margin="0,0,0,12"/>
+                        <DockPanel LastChildFill="False">
+                            <TextBlock Text="Длительность анимации" Style="{StaticResource SettingsFieldLabel}"/>
+                            <TextBlock x:Name="AnimationDurationText" DockPanel.Dock="Right" Text="260 мс"/>
+                        </DockPanel>
+                        <Slider x:Name="WindowAnimationSlider" Minimum="140" Maximum="500" TickFrequency="20" IsSnapToTickEnabled="True" Margin="0,7,0,13"/>
+                        <DockPanel LastChildFill="False">
+                            <TextBlock Text="Задержка раскрытия" Style="{StaticResource SettingsFieldLabel}"/>
+                            <TextBlock x:Name="ExpandDelayValueLabel" DockPanel.Dock="Right" Text="300 мс"/>
+                        </DockPanel>
+                        <Slider x:Name="ExpandDelaySlider" Minimum="0" Maximum="1000" TickFrequency="50" IsSnapToTickEnabled="True" Margin="0,7,0,13"/>
+                        <DockPanel LastChildFill="False">
+                            <TextBlock Text="Задержка сворачивания" Style="{StaticResource SettingsFieldLabel}"/>
+                            <TextBlock x:Name="CollapseDelayValueLabel" DockPanel.Dock="Right" Text="300 мс"/>
+                        </DockPanel>
+                        <Slider x:Name="CollapseDelaySlider" Minimum="0" Maximum="1000" TickFrequency="50" IsSnapToTickEnabled="True" Margin="0,7,0,15"/>
+                        <CheckBox x:Name="StartupCheck" Content="Автозапуск вместе с Windows" Margin="0,0,0,11"/>
+                        <CheckBox x:Name="HideYandexCheck" Content="Скрывать, когда Яндекс Музыка на переднем плане" Margin="0,0,0,11"/>
+                        <CheckBox x:Name="HideClosedCheck" Content="Скрывать при закрытии Яндекс Музыки" Margin="0,0,0,11"/>
+                        <CheckBox x:Name="HideInactiveCheck" Content="Скрывать, когда музыка не играет" Margin="0,0,0,11"/>
+                        <CheckBox x:Name="HideFullscreenCheck" Content="Скрывать в полноэкранных приложениях"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource SettingsCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Горячие клавиши" Style="{StaticResource SettingsSectionTitle}"/>
+                        <CheckBox x:Name="HotkeyCheck" Content="Включить глобальные сочетания" Margin="0,0,0,12"/>
+                        <TextBlock Text="Воспроизведение / пауза"/>
+                        <ComboBox x:Name="PlayHotkeyCombo" Height="32" Margin="0,5,0,10"/>
+                        <TextBlock Text="Предыдущий трек"/>
+                        <ComboBox x:Name="PreviousHotkeyCombo" Height="32" Margin="0,5,0,10"/>
+                        <TextBlock Text="Следующий трек"/>
+                        <ComboBox x:Name="NextHotkeyCombo" Height="32" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource SettingsCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Воспроизведение" Style="{StaticResource SettingsSectionTitle}"/>
+                        <TextBlock Text="Медиасессия" Style="{StaticResource SettingsFieldLabel}"/>
+                        <ComboBox x:Name="SourceCombo" Height="34" Margin="0,6,0,12"/>
+                        <TextBlock Text="Управление громкостью" Style="{StaticResource SettingsFieldLabel}"/>
+                        <ComboBox x:Name="VolumeModeCombo" Height="34" Margin="0,6,0,12"/>
+                        <TextBlock Text="Аудиопроцесс Яндекс Музыки" Style="{StaticResource SettingsFieldLabel}"/>
+                        <ComboBox x:Name="AudioProcessCombo" Height="34" Margin="0,6,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

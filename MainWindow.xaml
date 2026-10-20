@@ -1,0 +1,629 @@
+<Window x:Class="YMusicMini.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+        Icon="Assets/Icons/midnight-player.ico" Title="YMusic Mini — Midnight" Width="480" Height="220"
+        WindowStartupLocation="Manual" WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False" ShowActivated="False" Topmost="True"
+        Loaded="Window_Loaded" Closed="Window_Closed" MouseLeave="Window_MouseLeave" MouseEnter="Window_MouseEnter">
+    <Window.Resources>
+        <SolidColorBrush x:Key="CapsuleBg" Color="#FF20242D"/>
+        <SolidColorBrush x:Key="CapsuleText" Color="#FFF8FAFE"/>
+        <SolidColorBrush x:Key="SecondaryText" Color="#FFB3BDD0"/>
+        <SolidColorBrush x:Key="CapsuleOutline" Color="#FF505668"/>
+        <SolidColorBrush x:Key="IconInk" Color="#FF1D2330"/>
+        <LinearGradientBrush x:Key="SharedButtonGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF93C5EA" Offset="0"/>
+            <GradientStop Color="#FFAFA7EB" Offset="0.5"/>
+            <GradientStop Color="#FFE5AAD1" Offset="1"/>
+        </LinearGradientBrush>
+        <CornerRadius x:Key="PlayerButtonCornerRadius">18</CornerRadius>
+        <Thickness x:Key="PlayerButtonBorderThickness">0</Thickness>
+        <SolidColorBrush x:Key="PlayerButtonBorderBrush" Color="#00000000"/>
+        <LinearGradientBrush x:Key="PlayerButtonBackground" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF93C5EA" Offset="0"/>
+            <GradientStop Color="#FFAFA7EB" Offset="0.5"/>
+            <GradientStop Color="#FFE5AAD1" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Configurable Midnight controls. Unlike the original Kit templates,
+             these read the same resources that are modified by Settings. -->
+        <SolidColorBrush x:Key="MediaIconFill" Color="#30384F"/>
+        <SolidColorBrush x:Key="MediaPrimaryFill" Color="#1B233B"/>
+        <SolidColorBrush x:Key="MediaIconBorder" Color="#6E77A5"/>
+        <SolidColorBrush x:Key="MediaPrimaryBorder" Color="#A79EEA"/>
+        <SolidColorBrush x:Key="MediaGlyphBrush" Color="#F8FAFE"/>
+        <sys:Double x:Key="MediaPrimaryGlowOpacity">0.12</sys:Double>
+        <Thickness x:Key="MediaIconBorderSize">0.7</Thickness>
+        <Thickness x:Key="MediaPrimaryBorderSize">2.2</Thickness>
+        <CornerRadius x:Key="MediaIconRadius">16</CornerRadius>
+        <CornerRadius x:Key="MediaPrimaryRadius">28</CornerRadius>
+        <Style x:Key="Midnight.ConfigurableIcon" TargetType="Button">
+            <Setter Property="Width" Value="36"/><Setter Property="Height" Value="36"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value><ControlTemplate TargetType="Button">
+                    <Grid x:Name="ButtonSurface" Width="36" Height="36"
+                          RenderTransformOrigin="0.5,0.5" SnapsToDevicePixels="True">
+                        <Grid.RenderTransform>
+                            <ScaleTransform x:Name="PressedScale" ScaleX="1" ScaleY="1"/>
+                        </Grid.RenderTransform>
+                        <!-- Keep the glyph centered in the full 36x36 surface.
+                             The border thickness must not affect glyph layout. -->
+                        <Border x:Name="Face"
+                                Background="{DynamicResource MediaIconFill}"
+                                BorderBrush="{DynamicResource MediaIconBorder}"
+                                BorderThickness="{DynamicResource MediaIconBorderSize}"
+                                CornerRadius="{DynamicResource MediaIconRadius}"
+                                Opacity="0.90">
+                        </Border>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          SnapsToDevicePixels="True"/>
+                        <Border x:Name="HoverHighlight" IsHitTestVisible="False"
+                                Background="#386E88F5"
+                                CornerRadius="{DynamicResource MediaIconRadius}" Opacity="0"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Face" Property="Opacity" Value="1"/>
+                            <Setter TargetName="HoverHighlight" Property="Opacity" Value="1"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="HoverHighlight" Property="Opacity" Value="1"/>
+                            <Setter TargetName="HoverHighlight" Property="Background" Value="#667B81E8"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressedScale"
+                                                         Storyboard.TargetProperty="ScaleX"
+                                                         To="0.95" Duration="0:0:0.08"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressedScale"
+                                                         Storyboard.TargetProperty="ScaleY"
+                                                         To="0.95" Duration="0:0:0.08"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressedScale"
+                                                         Storyboard.TargetProperty="ScaleX"
+                                                         To="1" Duration="0:0:0.15"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressedScale"
+                                                         Storyboard.TargetProperty="ScaleY"
+                                                         To="1" Duration="0:0:0.15"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Face" Property="Opacity" Value="0.35"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate></Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="Midnight.ConfigurablePrimary" TargetType="Button">
+            <Setter Property="Width" Value="36"/><Setter Property="Height" Value="36"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value><ControlTemplate TargetType="Button">
+                    <Grid x:Name="ButtonSurface" Width="36" Height="36"
+                          RenderTransformOrigin="0.5,0.5" SnapsToDevicePixels="True">
+                        <Grid.RenderTransform>
+                            <ScaleTransform x:Name="PressedScale" ScaleX="1" ScaleY="1"/>
+                        </Grid.RenderTransform>
+                        <!-- Keep the glyph centered in the full 36x36 surface.
+                             The border thickness must not affect glyph layout. -->
+                        <Border x:Name="Face"
+                                Background="{DynamicResource MediaPrimaryFill}"
+                                BorderBrush="{DynamicResource MediaPrimaryBorder}"
+                                BorderThickness="{DynamicResource MediaPrimaryBorderSize}"
+                                CornerRadius="{DynamicResource MediaIconRadius}"
+                                Opacity="1">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#898BFA" ShadowDepth="0" BlurRadius="9"
+                                                  Opacity="{DynamicResource MediaPrimaryGlowOpacity}"/>
+                            </Border.Effect>
+                        </Border>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          SnapsToDevicePixels="True"/>
+                        <Border x:Name="HoverHighlight" IsHitTestVisible="False"
+                                Background="#386E88F5"
+                                CornerRadius="{DynamicResource MediaIconRadius}" Opacity="0"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Face" Property="Opacity" Value="1"/>
+                            <Setter TargetName="HoverHighlight" Property="Opacity" Value="1"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="HoverHighlight" Property="Opacity" Value="1"/>
+                            <Setter TargetName="HoverHighlight" Property="Background" Value="#667B81E8"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressedScale"
+                                                         Storyboard.TargetProperty="ScaleX"
+                                                         To="0.95" Duration="0:0:0.08"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressedScale"
+                                                         Storyboard.TargetProperty="ScaleY"
+                                                         To="0.95" Duration="0:0:0.08"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressedScale"
+                                                         Storyboard.TargetProperty="ScaleX"
+                                                         To="1" Duration="0:0:0.15"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressedScale"
+                                                         Storyboard.TargetProperty="ScaleY"
+                                                         To="1" Duration="0:0:0.15"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Face" Property="Opacity" Value="0.35"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate></Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PlayerButton" TargetType="Button">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Margin" Value="3,0"/>
+            <Setter Property="Background" Value="{DynamicResource PlayerButtonBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource IconInk}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBody" Background="{TemplateBinding Background}" CornerRadius="{DynamicResource PlayerButtonCornerRadius}"
+                                BorderBrush="{DynamicResource PlayerButtonBorderBrush}"
+                                BorderThickness="{DynamicResource PlayerButtonBorderThickness}"
+                                RenderTransformOrigin="0.5,0.5" Opacity="0.92">
+                            <Border.RenderTransform><ScaleTransform x:Name="ButtonScale"/></Border.RenderTransform>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ButtonBody" Storyboard.TargetProperty="Opacity"
+                                                     To="1" Duration="0:0:0.15"/>
+                                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ButtonBody" Storyboard.TargetProperty="Opacity"
+                                                     To="0.92" Duration="0:0:0.15"/>
+                                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="0.95" Duration="0:0:0.08"/>
+                                    <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="0.95" Duration="0:0:0.08"/>
+                                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.15"/>
+                                    <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.15"/>
+                                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBody" Property="Opacity" Value="0.3"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ToolButton" TargetType="Button" BasedOn="{StaticResource PlayerButton}">
+            <Setter Property="Width" Value="26"/><Setter Property="Height" Value="26"/>
+            <Setter Property="Margin" Value="2,0"/>
+        </Style>
+        <!-- No system button chrome; cover/title remain accessible via mouse and keyboard. -->
+        <!-- DESIGN REFRESH: mini transport buttons are icon-only, independent
+             of the large-player button customization. Dynamic text and accent
+             resources keep light/dark themes and wallpaper palettes working. -->
+        <Style x:Key="MiniIconButton" TargetType="Button">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Width="32" Height="32" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform>
+                                <ScaleTransform x:Name="MiniIconScale" ScaleX="1" ScaleY="1"/>
+                            </Grid.RenderTransform>
+                            <Border x:Name="HoverPlate" CornerRadius="16"
+                                    Background="#354E6395" Opacity="0"
+                                    IsHitTestVisible="False"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="HoverPlate" Storyboard.TargetProperty="Opacity"
+                                                     To="1" Duration="0:0:0.15"/>
+                                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="HoverPlate" Storyboard.TargetProperty="Opacity"
+                                                     To="0" Duration="0:0:0.15"/>
+                                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="MiniIconScale" Storyboard.TargetProperty="ScaleX" To="0.95" Duration="0:0:0.08"/>
+                                    <DoubleAnimation Storyboard.TargetName="MiniIconScale" Storyboard.TargetProperty="ScaleY" To="0.95" Duration="0:0:0.08"/>
+                                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="MiniIconScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.15"/>
+                                    <DoubleAnimation Storyboard.TargetName="MiniIconScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.15"/>
+                                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="HoverPlate" Property="Opacity" Value="0.2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="MiniExpandButton" TargetType="Button" BasedOn="{StaticResource MiniIconButton}">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="32"/>
+        </Style>
+        <Style x:Key="MiniPlayButton" TargetType="Button">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Width="44" Height="44" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform>
+                                <ScaleTransform x:Name="MiniPlayScale" ScaleX="1" ScaleY="1"/>
+                            </Grid.RenderTransform>
+                            <Border x:Name="MiniPlayRing" Background="#EA172039"
+                                    CornerRadius="22" BorderThickness="2.5"
+                                    BorderBrush="{DynamicResource SharedButtonGradient}">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#9881E5" ShadowDepth="0"
+                                                      BlurRadius="11" Opacity="0.35"/>
+                                </Border.Effect>
+                            </Border>
+                            <Border x:Name="MiniPlayHover" Margin="3" CornerRadius="19"
+                                    Background="#5B728CCF" Opacity="0"
+                                    IsHitTestVisible="False"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="MiniPlayHover" Storyboard.TargetProperty="Opacity"
+                                                     To="1" Duration="0:0:0.15"/>
+                                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="MiniPlayHover" Storyboard.TargetProperty="Opacity"
+                                                     To="0" Duration="0:0:0.15"/>
+                                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="MiniPlayScale" Storyboard.TargetProperty="ScaleX" To="0.95" Duration="0:0:0.08"/>
+                                    <DoubleAnimation Storyboard.TargetName="MiniPlayScale" Storyboard.TargetProperty="ScaleY" To="0.95" Duration="0:0:0.08"/>
+                                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="MiniPlayScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.15"/>
+                                    <DoubleAnimation Storyboard.TargetName="MiniPlayScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.15"/>
+                                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="MiniPlayRing" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="OpenMusicButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CaptionStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+    </Window.Resources>
+    <!-- An unchanged 480x220 transparent HWND; only visuals animate. This
+         preserves the tested smooth expand and click-through behavior. -->
+    <Canvas x:Name="WindowRoot" ClipToBounds="True" MouseLeftButtonDown="MainBorder_MouseLeftButtonDown">
+        <Canvas.ContextMenu>
+            <ContextMenu>
+                <MenuItem x:Name="LockPositionMenu" Header="Закрепить положение" IsCheckable="True" Click="LockPosition_Click"/>
+                <MenuItem x:Name="TopmostMenu" Header="Поверх всех окон" IsCheckable="True" Click="Topmost_Click"/>
+                <MenuItem Header="Настройки..." Click="Settings_Click"/>
+                <Separator/>
+                <MenuItem Header="Скрыть в трей" Click="Hide_Click"/>
+                <MenuItem Header="Выход" Click="Exit_Click"/>
+            </ContextMenu>
+        </Canvas.ContextMenu>
+
+        <!-- The base surface retains the user's adaptive wallpaper, environment,
+             album, and system themes. Midnight adds the luminous rim/glow. -->
+        <Rectangle x:Name="MainBorder" Width="480" Height="220"
+                   Canvas.Left="0" Canvas.Top="0"
+                   Fill="{DynamicResource CapsuleBg}"
+                   Stroke="{DynamicResource CapsuleOutline}" StrokeThickness="1.7"
+                   RadiusX="28" RadiusY="28" RenderTransformOrigin="0,0">
+            <!-- The outer shadow previously leaked beyond the actual rounded capsule. -->
+            <Rectangle.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="ShellScale" ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform x:Name="ShellOffset"/>
+                </TransformGroup>
+            </Rectangle.RenderTransform>
+        </Rectangle>
+        <!-- Inner highlight, follows the same transformation as the shell. -->
+        <Rectangle x:Name="GlassHighlight" Width="476" Height="216" Canvas.Left="2" Canvas.Top="2"
+                   RadiusX="26" RadiusY="26" IsHitTestVisible="False" RenderTransformOrigin="0,0"
+                   Opacity="0.28">
+            <Rectangle.Fill>
+                <RadialGradientBrush Center="0.08,0.02" GradientOrigin="0.08,0.02" RadiusX="1" RadiusY="1">
+                    <GradientStop Color="#247B96FC" Offset="0"/>
+                    <GradientStop Color="#00FFFFFF" Offset="1"/>
+                </RadialGradientBrush>
+            </Rectangle.Fill>
+            <Rectangle.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="GlassScale" ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform x:Name="GlassOffset"/>
+                </TransformGroup>
+            </Rectangle.RenderTransform>
+        </Rectangle>
+
+        <!-- Collapsed capsule (280 x 56). All media controls remain live. -->
+        <Grid x:Name="CompactContainer" Canvas.Left="0" Canvas.Top="0" Width="280" Height="56">
+            <Grid.Clip><RectangleGeometry Rect="0,0,280,56" RadiusX="28" RadiusY="28"/></Grid.Clip>
+            <StackPanel x:Name="CompactView" Orientation="Horizontal"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Style="{StaticResource OpenMusicButton}" Click="OpenYandexMusic_Click"
+                        ToolTip="Открыть Яндекс Музыку" Margin="0,0,17,0">
+                    <Grid Width="40" Height="40">
+                        <Border Background="#312D4B" CornerRadius="9"/>
+                        <Border CornerRadius="9" ClipToBounds="True">
+                            <Image x:Name="CompactCoverPlaceholder" Source="Assets/Artwork/album-moon.png" Stretch="UniformToFill"/>
+                        </Border>
+                        <Border CornerRadius="9" ClipToBounds="True">
+                            <Border.Background><ImageBrush x:Name="CompactCoverBrush" Stretch="UniformToFill"/></Border.Background>
+                        </Border>
+                    </Grid>
+                </Button>
+                <Button x:Name="CompactPrev" Style="{StaticResource Midnight.ConfigurableIcon}"
+                        Margin="0,0,7,0" Click="Previous_Click" ToolTip="Назад">
+                    <Grid Width="36" Height="36">
+                        <Viewbox x:Name="CompactPrevVector" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            
+                        <Canvas Width="24" Height="24"><Path Data="{StaticResource Midnight.Icon.Previous}" Fill="{DynamicResource MediaGlyphBrush}"/></Canvas>
+                    
+                        </Viewbox>
+                        <Image x:Name="CompactPrevArtwork" Stretch="Uniform" Visibility="Collapsed"
+                               IsHitTestVisible="False" />
+                    </Grid>
+                </Button>
+                <Button x:Name="CompactToggle" Style="{StaticResource Midnight.ConfigurablePrimary}"
+                        Width="36" Height="36" Margin="0,0,8,0" Click="Toggle_Click"
+                        ToolTip="Воспроизвести">
+                    <Grid Width="36" Height="36">
+                        <Viewbox x:Name="CompactToggleVector" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            
+                        <Canvas Width="24" Height="24"><Path x:Name="CompactPlayPath" Data="{StaticResource Midnight.Icon.Play}" Fill="{DynamicResource MediaGlyphBrush}"/></Canvas>
+                    
+                        </Viewbox>
+                        <Image x:Name="CompactToggleArtwork" Stretch="Uniform" Visibility="Collapsed"
+                               IsHitTestVisible="False" />
+                    </Grid>
+                </Button>
+                <Button x:Name="CompactNext" Style="{StaticResource Midnight.ConfigurableIcon}"
+                        Margin="0,0,7,0" Click="Next_Click" ToolTip="Далее">
+                    <Grid Width="36" Height="36">
+                        <Viewbox x:Name="CompactNextVector" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            
+                        <Canvas Width="24" Height="24"><Path Data="{StaticResource Midnight.Icon.Next}" Fill="{DynamicResource MediaGlyphBrush}"/></Canvas>
+                    
+                        </Viewbox>
+                        <Image x:Name="CompactNextArtwork" Stretch="Uniform" Visibility="Collapsed"
+                               IsHitTestVisible="False" />
+                    </Grid>
+                </Button>
+                <Button x:Name="CompactExpand" Style="{StaticResource Midnight.IconButton}" Width="30" Height="32"
+                        Click="Expand_Click" MouseEnter="ExpandButton_MouseEnter"
+                        MouseLeave="ExpandButton_MouseLeave" ToolTip="Развернуть">
+                    <Viewbox Width="18" Height="18">
+                        <Canvas Width="24" Height="24"><Path Data="{StaticResource Midnight.Icon.ChevronUp}"
+                            Stroke="{DynamicResource CapsuleText}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Canvas>
+                    </Viewbox>
+                </Button>
+            </StackPanel>
+            <!-- Repeat stays visible in capsule mode; it is an indicator, not a hit target. -->
+            <Border x:Name="CompactRepeatBadge" HorizontalAlignment="Right" VerticalAlignment="Center"
+                    Margin="0,0,5,0" Width="17" Height="17" CornerRadius="9"
+                    Background="#B0443A82" BorderBrush="#DBB6A7FF" BorderThickness="1"
+                    IsHitTestVisible="False" Visibility="Collapsed" Panel.ZIndex="2">
+                <Viewbox Margin="2.5" Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Canvas Width="24" Height="24">
+                        <Path Data="{StaticResource Midnight.Icon.Repeat}" Stroke="#FFFFFFFF" Fill="Transparent"
+                              StrokeThickness="2.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                              StrokeLineJoin="Round"/>
+                    </Canvas>
+                </Viewbox>
+            </Border>
+        </Grid>
+
+        <!-- Expanded panel: 480x220 with the actual controls from YMusic Mini,
+             arranged according to the Midnight Widget Kit design tokens. -->
+        <Grid x:Name="ExpandedContainer" Width="480" Height="220"
+              Canvas.Left="0" Canvas.Top="0" Visibility="Collapsed">
+            <Grid.Clip><RectangleGeometry Rect="0,0,480,220" RadiusX="28" RadiusY="28"/></Grid.Clip>
+            <Canvas x:Name="ExpandedView" Width="480" Height="220">
+                <Button Canvas.Left="22" Canvas.Top="26" Style="{StaticResource OpenMusicButton}"
+                        Click="OpenYandexMusic_Click" ToolTip="Открыть Яндекс Музыку">
+                    <Grid Width="136" Height="136">
+                        <Border CornerRadius="12" Background="#312D4B" BorderBrush="#799CA8DF" BorderThickness="1"/>
+                        <Border CornerRadius="12" ClipToBounds="True">
+                            <Image x:Name="ExpandedCoverPlaceholder" Source="Assets/Artwork/album-moon.png" Stretch="UniformToFill"/>
+                        </Border>
+                        <Border CornerRadius="12" ClipToBounds="True">
+                            <Image x:Name="ExpandedCoverImage" Stretch="UniformToFill"/>
+                        </Border>
+                    </Grid>
+                </Button>
+                <Button Canvas.Left="180" Canvas.Top="32" Width="180" Height="30"
+                        Style="{StaticResource OpenMusicButton}" Click="OpenYandexMusic_Click"
+                        ToolTip="Открыть Яндекс Музыку">
+                    <TextBlock x:Name="TitleLabel" Text="Яндекс Музыка не найдена"
+                               Foreground="{DynamicResource CapsuleText}" FontSize="16" FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis" TextAlignment="Left" VerticalAlignment="Center"/>
+                </Button>
+                <TextBlock x:Name="ArtistLabel" Canvas.Left="180" Canvas.Top="61" Width="278"
+                           Text="Нет активной медиасессии" Foreground="{DynamicResource SecondaryText}"
+                           FontSize="13" TextTrimming="CharacterEllipsis"/>
+
+                <Button x:Name="LockButton" Canvas.Left="366" Canvas.Top="9" Width="30" Height="30"
+                        Style="{StaticResource Midnight.IconButton}" Click="LockButton_Click"
+                        ToolTip="Закрепить">
+                    <Viewbox Width="18" Height="18"><Canvas Width="24" Height="24">
+                        <Path x:Name="LockIconPath" Data="{StaticResource Midnight.Icon.Pin}" Fill="Transparent"
+                            Stroke="{DynamicResource CapsuleText}" StrokeThickness="1.7" StrokeLineJoin="Round"/>
+                    </Canvas></Viewbox>
+                </Button>
+                <Button Canvas.Left="400" Canvas.Top="9" Width="30" Height="30"
+                        Style="{StaticResource Midnight.IconButton}" Click="Settings_Click" ToolTip="Настройки">
+                    <Viewbox Width="18" Height="18"><Canvas Width="24" Height="24">
+                        <Path Data="{StaticResource Midnight.Icon.Settings}" Fill="Transparent" Stroke="{DynamicResource CapsuleText}"
+                              StrokeThickness="1.7" StrokeLineJoin="Round"/>
+                    </Canvas></Viewbox>
+                </Button>
+                <Button Canvas.Left="434" Canvas.Top="9" Width="30" Height="30"
+                        Style="{StaticResource Midnight.IconButton}" Click="Collapse_Click" ToolTip="Свернуть">
+                    <Viewbox Width="18" Height="18"><Canvas Width="24" Height="24">
+                        <Path Data="{StaticResource Midnight.Icon.ChevronDown}" Fill="Transparent" Stroke="{DynamicResource CapsuleText}"
+                              StrokeThickness="1.7" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                    </Canvas></Viewbox>
+                </Button>
+                <Slider x:Name="TrackProgress" Canvas.Left="180" Canvas.Top="81"
+                        Width="278" Height="20" Minimum="0" Maximum="100"
+                        IsMoveToPointEnabled="False" Style="{StaticResource Midnight.Slider}"
+                        PreviewMouseLeftButtonDown="Progress_MouseDown"
+                        PreviewMouseLeftButtonUp="Progress_MouseUp"
+                        LostMouseCapture="Progress_LostMouseCapture"
+                        ToolTip="Перемотать"/>
+                <TextBlock x:Name="PositionLabel" Canvas.Left="180" Canvas.Top="102"
+                           Text="0:00" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                <TextBlock x:Name="DurationLabel" Canvas.Left="422" Canvas.Top="102" Width="36"
+                           TextAlignment="Right" Text="0:00" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                <StackPanel x:Name="ExpandedControls" Canvas.Left="232" Canvas.Top="117"
+                            Orientation="Horizontal">
+                    <Button x:Name="ExpandedPrev" Style="{StaticResource Midnight.ConfigurableIcon}"
+                            Margin="0,0,16,0" Click="Previous_Click" ToolTip="Назад">
+                        <Grid Width="36" Height="36">
+                        <Viewbox x:Name="ExpandedPrevVector" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Canvas Width="24" Height="24">
+                            <Path Data="{StaticResource Midnight.Icon.Previous}" Fill="{DynamicResource MediaGlyphBrush}"/>
+                        </Canvas>
+                        </Viewbox>
+                        <Image x:Name="ExpandedPrevArtwork" Stretch="Uniform" Visibility="Collapsed"
+                               IsHitTestVisible="False" />
+                    </Grid>
+                    </Button>
+                    <Button x:Name="ExpandedToggle" Style="{StaticResource Midnight.ConfigurablePrimary}"
+                            Margin="0,0,16,0" Click="Toggle_Click" ToolTip="Воспроизвести">
+                        <Grid Width="36" Height="36">
+                        <Viewbox x:Name="ExpandedToggleVector" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Canvas Width="24" Height="24">
+                            <Path x:Name="ExpandedPlayPath" Data="{StaticResource Midnight.Icon.Play}" Fill="{DynamicResource MediaGlyphBrush}"/>
+                        </Canvas>
+                        </Viewbox>
+                        <Image x:Name="ExpandedToggleArtwork" Stretch="Uniform" Visibility="Collapsed"
+                               IsHitTestVisible="False" />
+                    </Grid>
+                    </Button>
+                    <Button x:Name="ExpandedNext" Style="{StaticResource Midnight.ConfigurableIcon}"
+                            Margin="0,0,0,0" Click="Next_Click" ToolTip="Далее">
+                        <Grid Width="36" Height="36">
+                        <Viewbox x:Name="ExpandedNextVector" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Canvas Width="24" Height="24">
+                            <Path Data="{StaticResource Midnight.Icon.Next}" Fill="{DynamicResource MediaGlyphBrush}"/>
+                        </Canvas>
+                        </Viewbox>
+                        <Image x:Name="ExpandedNextArtwork" Stretch="Uniform" Visibility="Collapsed"
+                               IsHitTestVisible="False" />
+                    </Grid>
+                    </Button>
+                </StackPanel>
+                <ToggleButton x:Name="RepeatButton" Canvas.Left="426" Canvas.Top="130" Width="32" Height="32"
+                        Style="{StaticResource Midnight.IconToggle}" Click="Repeat_Click"
+                        ToolTip="Включить повтор">
+                    <Viewbox Width="20" Height="20"><Canvas Width="24" Height="24">
+                        <Path Data="{StaticResource Midnight.Icon.Repeat}" Fill="Transparent" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}"
+                              StrokeThickness="1.7" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                    </Canvas></Viewbox>
+                </ToggleButton>
+                <Button x:Name="VolumeIcon" Canvas.Left="26" Canvas.Top="174" Width="32" Height="32"
+                        Style="{StaticResource Midnight.IconButton}" Click="Mute_Click"
+                        PreviewMouseWheel="Volume_Wheel" ToolTip="Выключить звук">
+                    <Viewbox Width="20" Height="20"><Canvas Width="24" Height="24">
+                        <Path x:Name="VolumeIconPath" Data="{StaticResource Midnight.Icon.Volume}" Fill="Transparent"
+                              Stroke="{DynamicResource CapsuleText}" StrokeThickness="1.7" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                    </Canvas></Viewbox>
+                </Button>
+                <Slider x:Name="VolumeSlider" Canvas.Left="76" Canvas.Top="182" Width="332"
+                        Minimum="0" Maximum="100" ValueChanged="VolumeSlider_ValueChanged"
+                        PreviewMouseWheel="Volume_Wheel" IsEnabled="False"
+                        IsMoveToPointEnabled="True" Style="{StaticResource Midnight.Slider}"
+                        ToolTip="Громкость"/>
+                <TextBlock x:Name="VolumeLabel" Canvas.Left="412" Canvas.Top="183" Width="45"
+                           Text="" TextAlignment="Right" FontSize="11"
+                           Foreground="{DynamicResource SecondaryText}"/>
+            </Canvas>
+        </Grid>
+
+        <!-- Moving artwork is a decorative overlay; no hit testing. -->
+        <Canvas Width="480" Height="220" Canvas.Left="0" Canvas.Top="0"
+                IsHitTestVisible="False" ClipToBounds="True" Panel.ZIndex="10">
+            <Border x:Name="MovingCover" Visibility="Collapsed" Width="136" Height="136"
+                    Background="#312D4B" CornerRadius="12" RenderTransformOrigin="0,0">
+                <Border.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="MovingCoverScale" ScaleX="1" ScaleY="1"/>
+                        <TranslateTransform x:Name="CoverOffset"/>
+                    </TransformGroup>
+                </Border.RenderTransform>
+                <Grid>
+                    <Border x:Name="MovingCoverClip" CornerRadius="12" ClipToBounds="True">
+                        <Grid>
+                            <Image x:Name="MovingCoverPlaceholder" Source="Assets/Artwork/album-moon.png" Stretch="UniformToFill"/>
+                            <Image x:Name="MovingCoverImage" Stretch="UniformToFill"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Canvas>
+    </Canvas>
+</Window>

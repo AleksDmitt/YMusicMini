@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>YMusicMini</AssemblyName>
+    <Version>0.6.12</Version>
+    <AssemblyVersion>0.6.12.0</AssemblyVersion>
+    <FileVersion>0.6.12.0</FileVersion>
+    <ApplicationIcon>Assets\Icons\midnight-player.ico</ApplicationIcon>
+    <RootNamespace>YMusicMini</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Artwork\album-moon.png" />
+    <Resource Include="Assets\Icons\midnight-player.ico" />
+    <Resource Include="Assets\Icons\midnight-player-40.png" />
+    <Resource Include="Assets\ButtonStyles\**\*.png" />
+  </ItemGroup>
+</Project>

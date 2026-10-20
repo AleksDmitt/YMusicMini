@@ -1,0 +1,31 @@
+# .NET build output and tooling
+**/bin/
+**/obj/
+.vs/
+.vscode/
+.idea/
+TestResults/
+artifacts/
+publish/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS and local diagnostic files
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+*.cache
+
+# Local environment or possible secrets
+.env
+.env.*
+*.pfx
+*.snk
+settings.json
+
+# Local publish profile credentials
+*.pubxml.user
